@@ -8,8 +8,9 @@ datasource db {
   extensions = [vector] // Enables the pgvector extension
 }
 model Document {
-  id        String          @id @default(uuid(7))
+  id        String          @id @default(uuid(7)) @db.Uuid
   title     String
+  type      String
   url       String          // URL to the file in Supabase Storage
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
@@ -20,8 +21,8 @@ model Document {
 }
 
 model DocumentChunk {
-  id         String                 @id @default(uuid(7))
-  documentId String
+  id         String                 @id @default(uuid(7)) @db.Uuid
+  documentId String                 @db.Uuid
   document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
   
   content    String                 // The Markdown text content

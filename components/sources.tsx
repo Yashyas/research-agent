@@ -1,7 +1,7 @@
 // components/SourcesSection.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,32 +21,44 @@ import {
 import { useSourceStore } from "@/lib/store/useSourceStore";
 import { uploadDocument } from "@/app/actions/ingest";
 import { toast } from "sonner";
+import { deleteSource, fetchSources } from "@/app/actions/sources";
 
 export default function SourcesSection() {
-  const { sourceList, addSource, removeSource } = useSourceStore();
+  const { setSourceList,sourceList, addSource, removeSource } = useSourceStore();
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+ 
+  useEffect(() => {
+    async function loadData() {
+      const data = await fetchSources(); // Replace with your fetch logic
+      if(data.documents){
+      setSourceList(data.documents);
+      }
+    }
+    loadData();
+  }, [setSourceList]);
 
   const handleAddYoutube = (e: React.FormEvent) => {
     e.preventDefault();
     if (!youtubeUrl.trim()) return;
-    addSource({ type: "youtube", title: youtubeUrl, url: youtubeUrl });
+    addSource({ type: "youtube", title: youtubeUrl,id:"yt" });
     setYoutubeUrl("");
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
-      addSource({ type: "pdf", title: file.name, file });
 
       const formData = new FormData();
       formData.append("file", file);
-      setLoading(true);
       const promise = uploadDocument(formData);
       toast.promise(promise, {
         loading: "Uploading...",
-        success: (data) => `Document ${data.documentId} uploaded`,
+        success: (data) => {
+          // add to zustand store 
+          addSource({type:"pdf",title:file.name,id:data.documentId})
+
+          return `Document ${data.documentId} uploaded`},
         error: () => "Upload failed",
       });
       // Reset input so the same file can be uploaded again if deleted
@@ -54,8 +66,14 @@ export default function SourcesSection() {
     }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (sourceToDelete) {
+      const promise = deleteSource(sourceToDelete);
+      toast.promise(promise, {
+        loading: "Deleting...",
+        success: (data) => `Document ${data.deletedDocument?.title} deleted`,
+        error: () => "Delete failed",
+      });
       removeSource(sourceToDelete);
       setSourceToDelete(null);
     }

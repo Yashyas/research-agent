@@ -32,6 +32,7 @@ export async function uploadDocument(formData: FormData) {
     data: {
       title: file.name,
       url: publicUrl,
+      type:"pdf",
       status: "PROCESSING", // Start as processing
     },
   });

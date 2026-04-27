@@ -1,3 +1,4 @@
+import { semanticSearch } from "@/lib/semanticSerch";
 import { groq } from "@ai-sdk/groq";
 import { streamText, stepCountIs, convertToModelMessages, UIMessage, tool } from "ai";
 import { z } from "zod";
@@ -31,6 +32,18 @@ export async function POST(req: Request) {
           };
         },
       }),
+      semanticSearch: tool({
+    description:
+      "Search through the private sources of user to find relevant information using vector similarity.",
+      title:"Similarity Search",
+    inputSchema: z.object({
+      query: z.string().describe("The search query for finding related notes"),
+    }),
+    execute: async ({query}) => {
+        const data = await semanticSearch(query)
+        return data
+    }
+  }),
     },
     stopWhen: stepCountIs(5),
     system: `you are SmartNotes Agent - precise,context-aware note assistant.
