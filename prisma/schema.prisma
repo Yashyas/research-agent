@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  extensions = [vector] // Enables the pgvector extension
+}
+model Document {
+  id        String          @id @default(uuid(7))
+  title     String
+  url       String          // URL to the file in Supabase Storage
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  status    IngestionStatus @default(PENDING)
+  
+  // Relation to chunks
+  chunks    DocumentChunk[]
+}
+
+model DocumentChunk {
+  id         String                 @id @default(uuid(7))
+  documentId String
+  document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  content    String                 // The Markdown text content
+  metadata   Json                   // Stores { pageNumber: number, sectionTitle: string }
+  
+  // BGE-M3 uses 1024 dimensions. 
+  // "Unsupported" is used because Prisma doesn't have a native vector type yet.
+  embedding  Unsupported("vector(1024)")?
+
+  @@index([documentId])
+}
+
+enum IngestionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

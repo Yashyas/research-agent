@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown"
+import { ThemeToggle } from "./theme-toggle";
 
 // Displays the model's internal reasoning/thinking steps
 function ReasoningBlock({ reasoning }: { reasoning: string }) {
@@ -154,11 +155,12 @@ export default function Chat() {
 
   return (
     <Card className="flex flex-col  h-[95vh] lg:h-dvh w-full mx-auto shadow-lg border-muted">
-      <div className="border-b bg-muted/20 p-4">
+      <div className="border-b bg-muted/20 p-4 flex justify-between">
         <h2 className="font-semibold text-lg tracking-tight flex items-center gap-2">
           <BrainCircuit className="h-5 w-5 text-primary" />
           Research Workspace
         </h2>
+        <ThemeToggle/>
       </div>
 
       <ScrollArea className="flex-1 p-4 overflow-y-auto">

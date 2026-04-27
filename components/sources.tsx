@@ -19,11 +19,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSourceStore } from "@/lib/store/useSourceStore";
+import { uploadDocument } from "@/app/actions/ingest";
+import { toast } from "sonner";
 
 export default function SourcesSection() {
   const { sourceList, addSource, removeSource } = useSourceStore();
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleAddYoutube = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,10 +35,20 @@ export default function SourcesSection() {
     setYoutubeUrl("");
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       addSource({ type: "pdf", title: file.name, file });
+
+      const formData = new FormData();
+      formData.append("file", file);
+      setLoading(true);
+      const promise = uploadDocument(formData);
+      toast.promise(promise, {
+        loading: "Uploading...",
+        success: (data) => `Document ${data.documentId} uploaded`,
+        error: () => "Upload failed",
+      });
       // Reset input so the same file can be uploaded again if deleted
       e.target.value = "";
     }
@@ -148,23 +161,23 @@ export default function SourcesSection() {
 
                     {/* Full page layout overrides applied to content */}
 
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Are you absolutely sure?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete your source {source.type}: {source.title}.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel >Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={confirmDelete}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your source {source.type}: {source.title}.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
                   </AlertDialog>
                 </li>
               ))}
