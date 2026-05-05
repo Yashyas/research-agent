@@ -18,6 +18,7 @@ function ThemeAwareToaster() {
 
   return (
     <SonnerToaster
+    position="top-left"
       theme={theme as "light" | "dark" | "system"}
       className="toaster group"
       toastOptions={{
