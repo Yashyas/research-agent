@@ -72,7 +72,12 @@ Write the research report now.`;
   const draft =
     typeof response.content === "string"
       ? response.content
-      : JSON.stringify(response.content);
+      : Array.isArray(response.content)
+    ? response.content
+        .filter((block: any) => block.type === "text")
+        .map((block: any) => block.text)
+        .join("")
+    : JSON.stringify(response.content);
 
   console.log(`✅ Writer produced draft (${draft.length} chars)`);
 

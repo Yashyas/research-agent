@@ -9,7 +9,7 @@ export async function semanticSearch(query: string, documentId?: string) {
   const { data, error } = await supabase.rpc("match_document_chunks", {
     query_embedding: queryVector,
     match_threshold: 0.5,
-    match_count: 5,
+    match_count: 3,
     filter_document_id: documentId || null, // Supabase handles the null check
   });
 
