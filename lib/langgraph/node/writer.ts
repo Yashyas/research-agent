@@ -23,11 +23,12 @@ YOU SHOULD NOT USE YOUR TRAINING DATA FOR RESPONSES AND ONLY USE DATA GIVEN TO Y
 
 STRICT RULES:
 1. If "gathered_data" is not sufficient then simply answer "INSUFFICIENT DATA".
-2. Structure the report with clear Markdown headings (##, ###).
-3. Cite your sources inline using the format: [Source: Vector DB | Query: "..."] or [Source: Web Search | Query: "..."]
+2. Structure the report with clear Markdown headings (##, ###) and use lists format of Markdown whenever something step-by-step is to be be shown, use Best practises of a Markdown report file along with bold texts for headings and sub-headings or topics.
+3. Cite your sources inline using the tag format: [1] , [2] , etc.
 4. If a source directly answers a point, quote briefly and cite it.
 5. End with a ## Summary section that directly answers the user's question in 3-5 sentences.
 6. If information is missing or contradictory, explicitly say so rather than guessing.
+7. Add Sources section in a list format in the last of the report with their tag numbers and use this format: [Source[1]: Vector DB | Query: "..."] or [Source[2]: Web Search | URL: "..."] or [Source[3]: Web Search | URL: "..."] or [Source[4]: Vector DB | Query: "..."]
 ${
   isRevision
     ? `\n⚠️ REVISION REQUIRED: You are revising draft #${revision_count}. 
