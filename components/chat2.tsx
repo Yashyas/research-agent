@@ -116,7 +116,7 @@ export default function ChatNew() {
                 )}
 
                 <div
-                  className={`flex flex-col max-w-[85%] ${m.role === "user" ? "items-end" : "items-start"}`}
+                  className={`flex flex-col max-w-[85%] min-w-0 w-full ${m.role === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
                     className={`rounded-xl px-4 py-3 ${
@@ -142,7 +142,7 @@ export default function ChatNew() {
                           // Only render text if there's actual content (prevents empty bubbles)
                           if (!part.text.trim()) return null;
                           return (
-                            <div key={index} className="whitespace-pre-wrap leading-relaxed prose prose-sm max-w-[85vw] dark:prose-invert">
+                            <div key={index} className="leading-relaxed prose prose-sm max-w-none dark:prose-invert break-words ">
                               <ReactMarkdown>{part.text}</ReactMarkdown>
                             </div>
                           );
