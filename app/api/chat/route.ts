@@ -7,7 +7,7 @@ import {
 } from "ai";
 import { researchGraph } from "@/lib/langgraph/graph";
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
