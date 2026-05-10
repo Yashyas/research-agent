@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { FileText, MonitorPlay, Trash2, Plus } from "lucide-react";
+import { FileText, MonitorPlay, Trash2, Plus, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +22,13 @@ import { useSourceStore } from "@/lib/store/useSourceStore";
 import { uploadDocument } from "@/app/actions/ingest";
 import { toast } from "sonner";
 import { deleteSource, fetchSources } from "@/app/actions/sources";
+import { ingestYoutubeVideo } from "@/app/actions/youtube-ingest";
 
 export default function SourcesSection() {
   const { setSourceList,sourceList, addSource, removeSource } = useSourceStore();
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
+  const [isIngestingYoutube, setIsIngestingYoutube] = useState(false);
  
   useEffect(() => {
     async function loadData() {
@@ -38,11 +40,42 @@ export default function SourcesSection() {
     loadData();
   }, [setSourceList]);
 
-  const handleAddYoutube = (e: React.FormEvent) => {
+  const handleAddYoutube = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!youtubeUrl.trim()) return;
-    addSource({ type: "youtube", title: youtubeUrl,id:"yt" });
-    setYoutubeUrl("");
+     const urlToIngest = youtubeUrl.trim();
+    setYoutubeUrl("");         // clear input immediately so it feels responsive
+    setIsIngestingYoutube(true);
+ 
+    const promise = ingestYoutubeVideo(urlToIngest);
+ 
+    toast.promise(promise, {
+      loading: "Fetching transcript and embedding...",
+      success: (data) => {
+        // Add to Zustand store with the real id + title returned by the server
+        addSource({
+          type: "youtube",
+          title: data.title,
+          id: data.documentId,
+        });
+        return `"${data.title}" ingested — ${data.chunkCount} chunks added`;
+      },
+      error: (err: unknown) => {
+        // Put the URL back so the user can retry without re-typing
+        setYoutubeUrl(urlToIngest);
+        const message =
+          err instanceof Error ? err.message : "YouTube ingestion failed.";
+        // Trim the long server-error prefix for the toast — keep it readable
+        return message.replace(/^Failed to ingest YouTube video.*?Error: /, "");
+      },
+    });
+ 
+    // Await separately so we can reset the loading spinner regardless of outcome
+    try {
+      await promise;
+    } finally {
+      setIsIngestingYoutube(false);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,10 +158,19 @@ export default function SourcesSection() {
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
                 className="bg-background border-input flex-1"
+                disabled={isIngestingYoutube}
                 required
               />
-              <Button type="submit" variant="default">
-                <Plus className="w-4 h-4 mr-1.5" /> Add
+              <Button type="submit" variant="default" disabled={isIngestingYoutube || !youtubeUrl.trim()}>
+                {isIngestingYoutube ? (
+                  <Loader2 className="w-4 h-4 animate-spin"/>
+                ):(
+                  <>
+                  <Plus className="w-4 h-4 mr-1.5" /> 
+                  Add
+                  </>
+                )}
+                
               </Button>
             </form>
           </CardContent>

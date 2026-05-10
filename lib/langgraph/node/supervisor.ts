@@ -3,10 +3,6 @@ import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { GraphState } from "../state";
 
-// ─────────────────────────────────────────────
-// Zod schema for structured output from the Supervisor
-// Forces the LLM to return a strict JSON object — no hallucinated routing
-// ─────────────────────────────────────────────
 const ResearchPlanSchema = z.object({
   vector_db_queries: z
     .array(z.string())
@@ -30,9 +26,7 @@ const llm = new ChatGoogleGenerativeAI({
   temperature: 0,
 }).withStructuredOutput(ResearchPlanSchema);
 
-// ─────────────────────────────────────────────
-// Supervisor Node
-// ─────────────────────────────────────────────
+
 export async function supervisorNode(state: GraphState): Promise<Partial<GraphState>> {
   const userMessage = state.messages[state.messages.length - 1];
   const userQuery =

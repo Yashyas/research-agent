@@ -142,7 +142,7 @@ export default function ChatNew() {
                           // Only render text if there's actual content (prevents empty bubbles)
                           if (!part.text.trim()) return null;
                           return (
-                            <div key={index} className="whitespace-pre-wrap leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                            <div key={index} className="whitespace-pre-wrap leading-relaxed prose prose-sm max-w-[85vw] dark:prose-invert">
                               <ReactMarkdown>{part.text}</ReactMarkdown>
                             </div>
                           );
